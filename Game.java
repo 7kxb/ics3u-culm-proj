@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// * Kevin X. (ICS3U)
+// * Culminating Java project for ICS3U
 // ! Packages
 import java.awt.*;
 import java.awt.event.*;
