@@ -27,6 +27,7 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Button((int)(200/xScale),(int)(400/yScale),ID.ConfigButton));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TitleMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TypeMonkey));
+        handler.addObject(new Button((int)(200/xScale),(int)(200/yScale),ID.Level1Button));
     }
     public synchronized void start() {
         thread = new Thread(this);
@@ -88,6 +89,7 @@ public class Game extends Canvas implements Runnable {
 }
 // ------------------------------------------------------------------------------
 class Button extends GameObject {
+    static boolean searching = false;
     static int w = Game.WIDTH/2;
     static int h = Game.HEIGHT/8;
     public Button (int x, int y, ID id) {super(x, y, id);}
@@ -97,19 +99,26 @@ class Button extends GameObject {
         }
     }
     public void render(Graphics g) {
-        if (id == ID.PlayButton && Monkey.typing == false) {
+        if (id == ID.PlayButton && Button.searching == false) {
             g.setColor(Color.white);
             g.fillRect(x, y, w, h);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
             g.drawString("F* - Play", x+w/8, y+h-h/4);
         }
-        if (id == ID.ConfigButton && Monkey.typing == false) {
+        if (id == ID.ConfigButton && Button.searching == false) {
             g.setColor(Color.white);
             g.fillRect(x, y, w, h);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
             g.drawString("J* - Config", x+w/8, y+h-h/4);
+        }
+        if (id == ID.Level1Button && Button.searching == true) {
+            g.setColor(Color.white);
+            g.fillRect(x, y, w, h);
+            g.setColor(Color.black);
+            g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
+            g.drawString("Q* - Level 1", x+w/8, y+h-h/4);
         }
     }
 }
@@ -129,7 +138,7 @@ class Monkey extends GameObject {
             g.setFont(new Font("Ariel", Font.PLAIN, 50));
             g.drawString(qwerty, x, y);
         }
-        if (id == ID.TitleMonkey && typing == false) {
+        if (id == ID.TitleMonkey && Button.searching == false) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, 50));
             g.drawString("RhythmTyper", x, y);
@@ -152,11 +161,11 @@ class KeyInput extends KeyAdapter {
                 i--;
             }
         }
-        if (Monkey.typing == false) {
+        if (Button.searching == false) {
             int key = e.getKeyCode();
-            if ((char)key == 'F') {Monkey.typing = true;}
+            if ((char)key == 'F') {Button.searching = true;}
         }
-        if (Monkey.typing == false) {
+        if (Button.searching == false) {
             int key = e.getKeyCode();
             if ((char)key == 'J') {
                 Game.red = (int) (Math.random()*256);
@@ -197,7 +206,8 @@ enum ID {
     PlayButton(),
     ConfigButton(),
     TypeMonkey(),
-    TitleMonkey();
+    TitleMonkey(),
+    Level1Button();
 }
 // ------------------------------------------------------------------------------
 class Handler {
