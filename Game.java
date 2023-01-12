@@ -10,7 +10,7 @@ import java.util.*;
 // TODO: work
 // ------------------------------------------------------------------------------
 public class Game extends Canvas implements Runnable {
-    public static int WIDTH = 800, HEIGHT = 600;
+    public static int WIDTH = 480, HEIGHT = 360;
     public static double xScale = 800.0/WIDTH, yScale = 600.0/HEIGHT;
     private Thread thread;
     private boolean running = false;
@@ -88,7 +88,13 @@ public class Game extends Canvas implements Runnable {
         g.dispose();
         bs.show();
     }
-    public static void main(String[] args) {new Game();}
+    public static void main(String[] args) {
+        if (args.length != 0) {
+            int w = Integer.parseInt(args[0]);
+            int h = Integer.parseInt(args[1]);
+        }
+        new Game();
+    }
 }
 // ------------------------------------------------------------------------------
 class Button extends GameObject {
@@ -144,12 +150,12 @@ class Monkey extends GameObject {
     public void render(Graphics g) {
         if (id == ID.TypeMonkey && typing == true) {
             g.setColor(Color.white);
-            g.setFont(new Font("Ariel", Font.PLAIN, 50));
+            g.setFont(new Font("Ariel", Font.PLAIN, (int)(36/Game.yScale)));
             g.drawString(qwerty, x, y);
         }
         if (id == ID.TitleMonkey && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
-            g.setFont(new Font("Ariel", Font.PLAIN, 50));
+            g.setFont(new Font("Ariel", Font.PLAIN, (int)(72/Game.yScale)));
             g.drawString("RhythmTyper", x, y);
         }
     }
@@ -215,10 +221,6 @@ class KeyInput extends KeyAdapter {
             if ((char)key == 'S') {Monkey.typing = true; Button.searching = false;}
         }
     }
-    // TODO: Implement
-    // ? System.out.println(key);
-    // ! 10 = \n
-    // *
     @Override
     public void keyReleased(KeyEvent e) {int key = e.getKeyCode(); keysPressed.remove(key);}
 }
