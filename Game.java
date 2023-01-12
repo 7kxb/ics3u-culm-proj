@@ -23,6 +23,7 @@ public class Game extends Canvas implements Runnable {
         handler = new Handler();
         this.addKeyListener(new KeyInput(handler));
         new Window(WIDTH, HEIGHT, "Game", this);
+        handler.addObject(new Background((int)(100/xScale),(int)(100/yScale),ID.Background));
         handler.addObject(new Button((int)(200/xScale),(int)(300/yScale),ID.PlayButton));
         handler.addObject(new Button((int)(200/xScale),(int)(400/yScale),ID.ConfigButton));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TitleMonkey));
@@ -146,6 +147,29 @@ class Monkey extends GameObject {
     }
 }
 // ------------------------------------------------------------------------------
+class Background extends GameObject {
+    static int w = Game.WIDTH/4;
+    static int h = Game.HEIGHT/4;
+    public Background(int x, int y, ID id) {super(x, y, id);}
+    static int dx = 1;
+    static int dy = 1;
+    public void tick() {
+        if (id == ID.Background) {
+            x += dx;
+            y += dy;
+        }
+        if (x < 0 || x > Game.WIDTH-w) {dx *= -1;}
+        if (y < 0 || y > Game.HEIGHT-h) {dy *= -1;}
+    }
+    public void render(Graphics g) {
+        if (id == ID.Background && Monkey.typing == false) {
+            Color color = new Color(Game.red/2, Game.green/2, Game.blue/2);
+            g.setColor(color);
+            g.fillRect(x, y, w, h);
+        }
+    }
+}
+// ------------------------------------------------------------------------------
 class KeyInput extends KeyAdapter {
     private Handler handler;
     public KeyInput(Handler handler) {this.handler = handler;}
@@ -207,7 +231,8 @@ enum ID {
     ConfigButton(),
     TypeMonkey(),
     TitleMonkey(),
-    Level1Button();
+    Level1Button(),
+    Background();
 }
 // ------------------------------------------------------------------------------
 class Handler {
