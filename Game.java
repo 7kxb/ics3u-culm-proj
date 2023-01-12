@@ -28,7 +28,9 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Button((int)(200/xScale),(int)(400/yScale),ID.ConfigButton));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TitleMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TypeMonkey));
-        handler.addObject(new Button((int)(200/xScale),(int)(200/yScale),ID.Level1Button));
+        handler.addObject(new Button((int)(50/xScale),(int)(500/yScale),ID.LeaveButton));
+        handler.addObject(new Button((int)(550/xScale),(int)(500/yScale),ID.StartButton));
+        handler.addObject(new Button((int)(350/xScale),(int)(50/yScale),ID.Level1Button));
     }
     public synchronized void start() {
         thread = new Thread(this);
@@ -94,25 +96,35 @@ class Button extends GameObject {
     static int w = Game.WIDTH/2;
     static int h = Game.HEIGHT/8;
     public Button (int x, int y, ID id) {super(x, y, id);}
-    public void tick() {
-        if (id == ID.PlayButton) {
-            // ? if (!KeyInput.keysPressed.isEmpty()) {}
-        }
-    }
+    public void tick() {}
     public void render(Graphics g) {
-        if (id == ID.PlayButton && Button.searching == false) {
+        if (id == ID.PlayButton && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
             g.fillRect(x, y, w, h);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
             g.drawString("F* - Play", x+w/8, y+h-h/4);
         }
-        if (id == ID.ConfigButton && Button.searching == false) {
+        if (id == ID.ConfigButton && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
             g.fillRect(x, y, w, h);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
             g.drawString("J* - Config", x+w/8, y+h-h/4);
+        }
+        if (id == ID.LeaveButton && Button.searching == true) {
+            g.setColor(Color.white);
+            g.fillRect(x, y, w/2, h/2);
+            g.setColor(Color.black);
+            g.setFont(new Font("Ariel", Font.PLAIN, h/2-h/8));
+            g.drawString("L* - Leave", x+w/16, y+h/2-h/8);
+        }
+        if (id == ID.StartButton && Button.searching == true) {
+            g.setColor(Color.white);
+            g.fillRect(x, y, w/2, h/2);
+            g.setColor(Color.black);
+            g.setFont(new Font("Ariel", Font.PLAIN, h/2-h/8));
+            g.drawString("S* - Start", x+w/16, y+h/2-h/8);
         }
         if (id == ID.Level1Button && Button.searching == true) {
             g.setColor(Color.white);
@@ -128,18 +140,14 @@ class Monkey extends GameObject {
     static String qwerty = "";
     static boolean typing = false;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
-    public void tick() {
-        if (id == ID.TypeMonkey) {
-            // ? if (!KeyInput.keysPressed.isEmpty()) {}
-        }
-    }
+    public void tick() {}
     public void render(Graphics g) {
         if (id == ID.TypeMonkey && typing == true) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, 50));
             g.drawString(qwerty, x, y);
         }
-        if (id == ID.TitleMonkey && Button.searching == false) {
+        if (id == ID.TitleMonkey && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, 50));
             g.drawString("RhythmTyper", x, y);
@@ -185,11 +193,11 @@ class KeyInput extends KeyAdapter {
                 i--;
             }
         }
-        if (Button.searching == false) {
+        if (Button.searching == false && Monkey.typing == false) {
             int key = e.getKeyCode();
             if ((char)key == 'F') {Button.searching = true;}
         }
-        if (Button.searching == false) {
+        if (Button.searching == false && Monkey.typing == false) {
             int key = e.getKeyCode();
             if ((char)key == 'J') {
                 Game.red = (int) (Math.random()*256);
@@ -197,6 +205,14 @@ class KeyInput extends KeyAdapter {
                 Game.blue = (int) (Math.random()*256);
                 Game.randomColor = new Color(Game.red, Game.green, Game.blue);
             }
+        }
+        if (Button.searching == true && Monkey.typing == false) {
+            int key = e.getKeyCode();
+            if ((char)key == 'L') {Button.searching = false;}
+        }
+        if (Button.searching == true && Monkey.typing == false) {
+            int key = e.getKeyCode();
+            if ((char)key == 'S') {Monkey.typing = true; Button.searching = false;}
         }
     }
     // TODO: Implement
@@ -231,6 +247,8 @@ enum ID {
     ConfigButton(),
     TypeMonkey(),
     TitleMonkey(),
+    LeaveButton(),
+    StartButton(),
     Level1Button(),
     Background();
 }
