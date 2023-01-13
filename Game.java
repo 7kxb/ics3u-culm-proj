@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import javax.swing.*;
 import java.util.*;
+import javax.sound.sampled.*;
 // ? Ctrl+K, (Ctrl+0 || Ctrl+J)
 // TODO: work
 // ------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ public class Game extends Canvas implements Runnable {
         try {
             thread.join();
             running = false;
-        } catch(Exception e) {e.printStackTrace();}
+        } catch (Exception e) {}
     }
     public void run() {
         this.requestFocus();
@@ -194,6 +195,12 @@ class KeyInput extends KeyAdapter {
     int i = 0;
     @Override
     public void keyPressed(KeyEvent e) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("click.wav"));
+            Clip sound = AudioSystem.getClip();
+            sound.open(audioInputStream);
+            sound.start();
+        } catch (Exception err) {}
         if (Monkey.typing == true) {
             int key = e.getKeyCode(); keysPressed.add(key);
             if (key >= 32) {Monkey.qwerty += (char) key; i++;}
