@@ -10,7 +10,7 @@ import java.util.*;
 // TODO: work
 // ------------------------------------------------------------------------------
 public class Game extends Canvas implements Runnable {
-    public static int WIDTH = 480, HEIGHT = 360;
+    public static int WIDTH = 800, HEIGHT = 600;
     public static double xScale = 800.0/WIDTH, yScale = 600.0/HEIGHT;
     private Thread thread;
     private boolean running = false;
@@ -46,7 +46,7 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.requestFocus();
         long lastTime = System.nanoTime();
-        double amountOfTicks = 240.0;
+        double amountOfTicks = 360.0;
         double ns = 1_000_000_000.0 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
@@ -99,6 +99,7 @@ public class Game extends Canvas implements Runnable {
 // ------------------------------------------------------------------------------
 class Button extends GameObject {
     static boolean searching = false;
+    static boolean L1 = false;
     static int w = Game.WIDTH/2;
     static int h = Game.HEIGHT/8;
     public Button (int x, int y, ID id) {super(x, y, id);}
@@ -125,7 +126,7 @@ class Button extends GameObject {
             g.setFont(new Font("Ariel", Font.PLAIN, h/2-h/8));
             g.drawString("L* - Leave", x+w/16, y+h/2-h/8);
         }
-        if (id == ID.StartButton && Button.searching == true) {
+        if (id == ID.StartButton && Button.searching == true && L1 == true) {
             g.setColor(Color.white);
             g.fillRect(x, y, w/2, h/2);
             g.setColor(Color.black);
@@ -133,7 +134,7 @@ class Button extends GameObject {
             g.drawString("S* - Start", x+w/16, y+h/2-h/8);
         }
         if (id == ID.Level1Button && Button.searching == true) {
-            g.setColor(Color.white);
+            if (L1 == false) {g.setColor(Color.white);} else {g.setColor(Color.yellow);}
             g.fillRect(x, y, w, h);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
@@ -145,8 +146,9 @@ class Button extends GameObject {
 class Monkey extends GameObject {
     static String qwerty = "";
     static boolean typing = false;
+    static int timer = 0;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
-    public void tick() {}
+    public void tick() {timer++;}
     public void render(Graphics g) {
         if (id == ID.TypeMonkey && typing == true) {
             g.setColor(Color.white);
@@ -156,7 +158,8 @@ class Monkey extends GameObject {
         if (id == ID.TitleMonkey && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(72/Game.yScale)));
-            g.drawString("RhythmTyper", x, y);
+            if (timer % 1000 > 500) {g.drawString("RhythmTyper|", x, y);}
+            else {g.drawString("RhythmTyper", x, y);}
         }
     }
 }
@@ -212,13 +215,21 @@ class KeyInput extends KeyAdapter {
                 Game.randomColor = new Color(Game.red, Game.green, Game.blue);
             }
         }
-        if (Button.searching == true && Monkey.typing == false) {
+        if (Button.searching == true && Monkey.typing == false && Button.L1 == false) {
             int key = e.getKeyCode();
             if ((char)key == 'L') {Button.searching = false;}
         }
-        if (Button.searching == true && Monkey.typing == false) {
+        if (Button.searching == true && Monkey.typing == false && Button.L1 == true) {
+            int key = e.getKeyCode();
+            if ((char)key == 'L') {Button.L1 = false;}
+        }
+        if (Button.searching == true && Monkey.typing == false && Button.L1 == true) {
             int key = e.getKeyCode();
             if ((char)key == 'S') {Monkey.typing = true; Button.searching = false;}
+        }
+        if (Button.searching == true && Monkey.typing == false) {
+            int key = e.getKeyCode();
+            if ((char)key == 'Q') {Button.L1 = true;}
         }
     }
     @Override
