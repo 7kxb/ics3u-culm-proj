@@ -193,14 +193,16 @@ class KeyInput extends KeyAdapter {
     public KeyInput(Handler handler) {this.handler = handler;}
     public static HashSet<Integer> keysPressed = new HashSet<>();
     int i = 0;
-    @Override
-    public void keyPressed(KeyEvent e) {
+    public static void clickSFX() {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("click.wav"));
             Clip sound = AudioSystem.getClip();
             sound.open(audioInputStream);
             sound.start();
         } catch (Exception err) {}
+    }
+    @Override
+    public void keyPressed(KeyEvent e) {
         if (Monkey.typing == true) {
             int key = e.getKeyCode(); keysPressed.add(key);
             if (key >= 32) {Monkey.qwerty += (char) key; i++;}
@@ -211,7 +213,7 @@ class KeyInput extends KeyAdapter {
         }
         if (Button.searching == false && Monkey.typing == false) {
             int key = e.getKeyCode();
-            if ((char)key == 'F') {Button.searching = true;}
+            if ((char)key == 'F') {Button.searching = true; clickSFX();}
         }
         if (Button.searching == false && Monkey.typing == false) {
             int key = e.getKeyCode();
@@ -220,23 +222,32 @@ class KeyInput extends KeyAdapter {
                 Game.green = (int) (Math.random()*256);
                 Game.blue = (int) (Math.random()*256);
                 Game.randomColor = new Color(Game.red, Game.green, Game.blue);
+                clickSFX();
             }
         }
         if (Button.searching == true && Monkey.typing == false && Button.L1 == false) {
             int key = e.getKeyCode();
-            if ((char)key == 'L') {Button.searching = false;}
+            if ((char)key == 'L') {Button.searching = false; clickSFX();}
         }
         if (Button.searching == true && Monkey.typing == false && Button.L1 == true) {
             int key = e.getKeyCode();
-            if ((char)key == 'L') {Button.L1 = false;}
+            if ((char)key == 'L') {Button.L1 = false; clickSFX();}
         }
         if (Button.searching == true && Monkey.typing == false && Button.L1 == true) {
             int key = e.getKeyCode();
-            if ((char)key == 'S') {Monkey.typing = true; Button.searching = false;}
+            if ((char)key == 'S') {
+                Monkey.typing = true; Button.searching = false; clickSFX();
+                try {
+                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
+                    Clip sound = AudioSystem.getClip();
+                    sound.open(audioInputStream);
+                    sound.start();
+                } catch (Exception err) {}
+            }
         }
         if (Button.searching == true && Monkey.typing == false) {
             int key = e.getKeyCode();
-            if ((char)key == 'Q') {Button.L1 = true;}
+            if ((char)key == 'Q') {Button.L1 = true; clickSFX();}
         }
     }
     @Override
