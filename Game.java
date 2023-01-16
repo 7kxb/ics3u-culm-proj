@@ -58,7 +58,7 @@ public class Game extends Canvas implements Runnable {
             delta += (now - lastTime)/ns;
             lastTime = now;
             while (delta >= 1) {
-                tick();
+                tick(ticks);
                 delta--;
                 ticks++;
                 if (running) {
@@ -75,7 +75,7 @@ public class Game extends Canvas implements Runnable {
         }
         stop();
     }
-    private void tick() {handler.tick();}
+    private void tick(int ticks) {handler.tick();}
     private void render() {
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) {
@@ -104,7 +104,7 @@ class Button extends GameObject {
     static int w = Game.WIDTH/2;
     static int h = Game.HEIGHT/8;
     public Button (int x, int y, ID id) {super(x, y, id);}
-    public void tick() {}
+    public void tick(int ticks) {}
     public void render(Graphics g) {
         if (id == ID.PlayButton && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
@@ -149,7 +149,7 @@ class Monkey extends GameObject {
     static boolean typing = false;
     static int timer = 0;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
-    public void tick() {timer++;}
+    public void tick(int ticks) {timer++;}
     public void render(Graphics g) {
         if (id == ID.TypeMonkey && typing == true) {
             g.setColor(Color.white);
@@ -171,7 +171,7 @@ class Background extends GameObject {
     public Background(int x, int y, ID id) {super(x, y, id);}
     static int dx = 1;
     static int dy = 1;
-    public void tick() {
+    public void tick(int ticks) {
         if (id == ID.Background) {
             x += dx;
             y += dy;
@@ -259,7 +259,7 @@ abstract class GameObject {
     protected ID id;
     protected int velX, velY;
     public GameObject(int x, int y, ID id) {this.x = x; this.y = y; this.id = id;}
-    public abstract void tick();
+    public abstract void tick(int ticks);
     public abstract void render(Graphics g);
     public void setX(int x) {this.x = x;}
     public void setY(int y) {this.y = y;}
@@ -286,10 +286,10 @@ enum ID {
 // ------------------------------------------------------------------------------
 class Handler {
     LinkedList<GameObject> object = new LinkedList<GameObject>();
-    public void tick() {
+    public void tick(int ticks) {
         for (int i = 0; i < object.size(); i++) {
             GameObject tempObject = object.get(i);
-            tempObject.tick();
+            tempObject.tick(ticks);
         }
     }
     public void render(Graphics g) {
