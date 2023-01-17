@@ -7,6 +7,7 @@ import java.awt.image.*;
 import javax.swing.*;
 import java.util.*;
 import javax.sound.sampled.*;
+import java.io.*;
 // ? Ctrl+K, (Ctrl+0 || Ctrl+J)
 // TODO: work
 // ------------------------------------------------------------------------------
@@ -28,7 +29,8 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Button((int)(200/xScale),(int)(300/yScale),ID.PlayButton));
         handler.addObject(new Button((int)(200/xScale),(int)(400/yScale),ID.ConfigButton));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TitleMonkey));
-        handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TypeMonkey));
+        handler.addObject(new Monkey((int)(100/xScale),(int)(200/yScale),ID.TypeMonkey));
+        handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.HitMonkey));
         handler.addObject(new Button((int)(50/xScale),(int)(500/yScale),ID.LeaveButton));
         handler.addObject(new Button((int)(550/xScale),(int)(500/yScale),ID.StartButton));
         handler.addObject(new Button((int)(350/xScale),(int)(50/yScale),ID.Level1Button));
@@ -47,7 +49,7 @@ public class Game extends Canvas implements Runnable {
     public void run() {
         this.requestFocus();
         long lastTime = System.nanoTime();
-        double amountOfTicks = 360.0;
+        double amountOfTicks = 100.0;
         double ns = 1_000_000_000.0 / amountOfTicks;
         double delta = 0;
         long timer = System.currentTimeMillis();
@@ -75,7 +77,7 @@ public class Game extends Canvas implements Runnable {
         }
         stop();
     }
-    private void tick(int ticks) {handler.tick();}
+    private void tick(int ticks) {handler.tick(ticks);}
     private void render() {
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) {
@@ -95,6 +97,19 @@ public class Game extends Canvas implements Runnable {
             int h = Integer.parseInt(args[1]);
         }
         new Game();
+    }
+    public static void parseChart(int level) throws IOException {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
+            Clip sound = AudioSystem.getClip();
+            sound.open(audioInputStream);
+            sound.start();
+        } catch (Exception err) {}
+        BufferedReader input = new BufferedReader(new FileReader("./padoru.txt"));
+        if (level == 1) {input = new BufferedReader(new FileReader("./padoru.txt"));}
+        String line = input.readLine();
+        input.close();
+        System.out.println(line);
     }
 }
 // ------------------------------------------------------------------------------
@@ -146,20 +161,33 @@ class Button extends GameObject {
 // ------------------------------------------------------------------------------
 class Monkey extends GameObject {
     static String qwerty = "";
+    static boolean free = false;
+    static String event = "ABC";
+    static int level = 0;
     static boolean typing = false;
     static int timer = 0;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
-    public void tick(int ticks) {timer++;}
+    public void tick(int ticks) {
+        timer++;
+        if (free) {
+            try {Game.parseChart(level);} catch (IOException e) {System.out.println(e);}
+        }
+    }
     public void render(Graphics g) {
         if (id == ID.TypeMonkey && typing == true) {
-            g.setColor(Color.white);
+            g.setColor(Color.lightGray);
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(36/Game.yScale)));
             g.drawString(qwerty, x, y);
+        }
+        if (id == ID.HitMonkey && typing == true) {
+            g.setColor(Color.white);
+            g.setFont(new Font("Ariel", Font.PLAIN, (int)(36/Game.yScale)));
+            g.drawString(event, x, y);
         }
         if (id == ID.TitleMonkey && Button.searching == false && Monkey.typing == false) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(72/Game.yScale)));
-            if (timer % 1000 > 500) {g.drawString("RhythmTyper|", x, y);}
+            if (timer % 200 > 100) {g.drawString("RhythmTyper|", x, y);}
             else {g.drawString("RhythmTyper", x, y);}
         }
     }
@@ -237,17 +265,12 @@ class KeyInput extends KeyAdapter {
             int key = e.getKeyCode();
             if ((char)key == 'S') {
                 Monkey.typing = true; Button.searching = false; clickSFX();
-                try {
-                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
-                    Clip sound = AudioSystem.getClip();
-                    sound.open(audioInputStream);
-                    sound.start();
-                } catch (Exception err) {}
+                try {Game.parseChart(Monkey.level);} catch (IOException err) {System.out.println(err);}
             }
         }
         if (Button.searching == true && Monkey.typing == false) {
             int key = e.getKeyCode();
-            if ((char)key == 'Q') {Button.L1 = true; clickSFX();}
+            if ((char)key == 'Q') {Button.L1 = true; Monkey.level = 1; clickSFX();}
         }
     }
     @Override
@@ -277,6 +300,7 @@ enum ID {
     PlayButton(),
     ConfigButton(),
     TypeMonkey(),
+    HitMonkey(),
     TitleMonkey(),
     LeaveButton(),
     StartButton(),
