@@ -21,6 +21,7 @@ public class Game extends Canvas implements Runnable {
     public static int green = (int) (Math.random()*256);
     public static int blue = (int) (Math.random()*256);
     public static Color randomColor = new Color(red, green, blue);
+    public static int eventNumber = 1;
     public Game() {
         handler = new Handler();
         this.addKeyListener(new KeyInput(handler));
@@ -98,18 +99,13 @@ public class Game extends Canvas implements Runnable {
         }
         new Game();
     }
-    public static void parseChart(int level) throws IOException {
+    public static void parseChart(int level) {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
             Clip sound = AudioSystem.getClip();
             sound.open(audioInputStream);
             sound.start();
         } catch (Exception err) {}
-        BufferedReader input = new BufferedReader(new FileReader("./test.txt"));
-        if (level == 1) {input = new BufferedReader(new FileReader("./padoru.txt"));}
-        String line = input.readLine();
-        input.close();
-        System.out.println(line);
     }
 }
 // ------------------------------------------------------------------------------
@@ -170,7 +166,7 @@ class Monkey extends GameObject {
     public void tick(int ticks) {
         timer++;
         if (free) {
-            try {Game.parseChart(level);} catch (IOException e) {System.out.println(e);}
+            Game.parseChart(level);
         }
     }
     public void render(Graphics g) {
@@ -265,7 +261,7 @@ class KeyInput extends KeyAdapter {
             int key = e.getKeyCode();
             if ((char)key == 'S') {
                 Monkey.typing = true; Button.searching = false; clickSFX();
-                try {Game.parseChart(Monkey.level);} catch (IOException err) {System.out.println(err);}
+                Game.parseChart(Monkey.level);
             }
         }
         if (Button.searching == true && Monkey.typing == false) {
