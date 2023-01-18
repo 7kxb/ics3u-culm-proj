@@ -105,7 +105,7 @@ public class Game extends Canvas implements Runnable {
             sound.open(audioInputStream);
             sound.start();
         } catch (Exception err) {}
-        BufferedReader input = new BufferedReader(new FileReader("./padoru.txt"));
+        BufferedReader input = new BufferedReader(new FileReader("./test.txt"));
         if (level == 1) {input = new BufferedReader(new FileReader("./padoru.txt"));}
         String line = input.readLine();
         input.close();
