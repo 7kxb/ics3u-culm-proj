@@ -155,9 +155,9 @@ class Monkey extends GameObject {
     static int level = 0;
     static boolean typing = false;
     static int timer = 0;
-    static int[] position = {0, 200, 400, 600};
-    static String[] text = {"A","B","C",""};
-    static int[] duration = {100, 100, 100, 100};
+    static int[] position = {100*3, 350*3, 640*3, 860*3, 3300*3};
+    static String[] text = {"HASHIRESORIYO", "KAZENOYOUNI", "TSUKIMIHARAWO","PADORUPADORU",""};
+    static int[] duration = {200*3, 225*3, 170*3, 240*3, 100*3};
     public Monkey (int x, int y, ID id) {super(x, y, id);}
     public void tick(int ticks) {
         timer++;
@@ -196,7 +196,7 @@ class Monkey extends GameObject {
             } catch (Exception err) {}
         }
         if (timer >= position[eventNumber]) {event = text[eventNumber];}
-        else {event = "";}
+        else {event = ""; qwerty = "";}
         if (timer >= position[eventNumber] + duration[eventNumber]) {eventNumber++;}
         if (eventNumber >= text.length) {free = false; typing = false; Button.searching = true;}
     }
