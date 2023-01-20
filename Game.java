@@ -21,7 +21,6 @@ public class Game extends Canvas implements Runnable {
     public static int green = (int) (Math.random()*256);
     public static int blue = (int) (Math.random()*256);
     public static Color randomColor = new Color(red, green, blue);
-    public static int eventNumber = 1;
     public Game() {
         handler = new Handler();
         this.addKeyListener(new KeyInput(handler));
@@ -99,14 +98,6 @@ public class Game extends Canvas implements Runnable {
         }
         new Game();
     }
-    public static void parseChart(int level) {
-        try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
-            Clip sound = AudioSystem.getClip();
-            sound.open(audioInputStream);
-            sound.start();
-        } catch (Exception err) {}
-    }
 }
 // ------------------------------------------------------------------------------
 class Button extends GameObject {
@@ -157,16 +148,21 @@ class Button extends GameObject {
 // ------------------------------------------------------------------------------
 class Monkey extends GameObject {
     static String qwerty = "";
+    static boolean init = false;
     static boolean free = false;
-    static String event = "ABC";
+    public static int eventNumber = 0;
+    static String event = "";
     static int level = 0;
     static boolean typing = false;
     static int timer = 0;
+    static int[] position = {0, 200, 400, 600};
+    static String[] text = {"A","B","C",""};
+    static int[] duration = {100, 100, 100, 100};
     public Monkey (int x, int y, ID id) {super(x, y, id);}
     public void tick(int ticks) {
         timer++;
         if (free) {
-            Game.parseChart(level);
+            parseChart();
         }
     }
     public void render(Graphics g) {
@@ -186,6 +182,23 @@ class Monkey extends GameObject {
             if (timer % 200 > 100) {g.drawString("RhythmTyper|", x, y);}
             else {g.drawString("RhythmTyper", x, y);}
         }
+    }
+    public static void parseChart() {
+        if (level == 1 && init == true) {
+            try {
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
+                Clip sound = AudioSystem.getClip();
+                sound.open(audioInputStream);
+                sound.start();
+                init = false;
+                timer = 0;
+                eventNumber = 0;
+            } catch (Exception err) {}
+        }
+        if (timer >= position[eventNumber]) {event = text[eventNumber];}
+        else {event = "";}
+        if (timer >= position[eventNumber] + duration[eventNumber]) {eventNumber++;}
+        if (eventNumber >= text.length) {free = false; typing = false; Button.searching = true;}
     }
 }
 // ------------------------------------------------------------------------------
@@ -261,7 +274,7 @@ class KeyInput extends KeyAdapter {
             int key = e.getKeyCode();
             if ((char)key == 'S') {
                 Monkey.typing = true; Button.searching = false; clickSFX();
-                Game.parseChart(Monkey.level);
+                Monkey.free = true; Monkey.init = true;
             }
         }
         if (Button.searching == true && Monkey.typing == false) {
