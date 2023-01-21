@@ -17,9 +17,9 @@ public class Game extends Canvas implements Runnable {
     private Thread thread;
     private boolean running = false;
     private Handler handler;
-    public static int red = (int) (Math.random()*256);
-    public static int green = (int) (Math.random()*256);
-    public static int blue = (int) (Math.random()*256);
+    public static int red = (int) (Math.random()*128);
+    public static int green = (int) (Math.random()*128);
+    public static int blue = (int) (Math.random()*128);
     public static Color randomColor = new Color(red, green, blue);
     public Game() {
         handler = new Handler();
@@ -28,6 +28,7 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Background((int)(100/xScale),(int)(100/yScale),ID.Background));
         handler.addObject(new Button((int)(200/xScale),(int)(300/yScale),ID.PlayButton));
         handler.addObject(new Button((int)(200/xScale),(int)(400/yScale),ID.ConfigButton));
+        handler.addObject(new Monkey((int)(0/xScale),(int)(0/yScale),ID.BarMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TitleMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(200/yScale),ID.TypeMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.HitMonkey));
@@ -147,6 +148,8 @@ class Button extends GameObject {
 }
 // ------------------------------------------------------------------------------
 class Monkey extends GameObject {
+    static int w = 0;
+    static int h = Game.HEIGHT/20;
     static String qwerty = "";
     static boolean init = false;
     static boolean free = false;
@@ -155,14 +158,14 @@ class Monkey extends GameObject {
     static int level = 0;
     static boolean typing = false;
     static int timer = 0;
-    static int[] position = {100*3, 350*3, 640*3, 860*3, 3300*3};
+    static int[] position = {102, 354, 613, 859, 3300};
     static String[] text = {"HASHIRESORIYO", "KAZENOYOUNI", "TSUKIMIHARAWO","PADORUPADORU",""};
-    static int[] duration = {200*3, 225*3, 170*3, 240*3, 100*3};
+    static int[] duration = {354-102, 613-354, 859-613, 1144-859, 100};
     public Monkey (int x, int y, ID id) {super(x, y, id);}
     public void tick(int ticks) {
-        timer++;
-        if (free) {
-            parseChart();
+        if (id == ID.TypeMonkey) {
+            timer++;
+            if (free) {parseChart();}
         }
     }
     public void render(Graphics g) {
@@ -182,6 +185,10 @@ class Monkey extends GameObject {
             if (timer % 200 > 100) {g.drawString("RhythmTyper|", x, y);}
             else {g.drawString("RhythmTyper", x, y);}
         }
+        if (id == ID.BarMonkey && typing == true) {
+            g.setColor(Color.white);
+            g.fillRect(x, y, w, h);
+        }
     }
     public static void parseChart() {
         if (level == 1 && init == true) {
@@ -189,15 +196,18 @@ class Monkey extends GameObject {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
                 Clip sound = AudioSystem.getClip();
                 sound.open(audioInputStream);
+                FloatControl gainControl = (FloatControl) sound.getControl(FloatControl.Type.MASTER_GAIN);
+                gainControl.setValue(-16.0f);
                 sound.start();
                 init = false;
                 timer = 0;
+                qwerty = "";
+                KeyInput.i = 0;
                 eventNumber = 0;
             } catch (Exception err) {}
         }
-        if (timer >= position[eventNumber]) {event = text[eventNumber];}
-        else {event = ""; qwerty = "";}
-        if (timer >= position[eventNumber] + duration[eventNumber]) {eventNumber++;}
+        if (timer >= position[eventNumber]) {event = text[eventNumber]; w += Game.WIDTH*1.2/duration[eventNumber];}
+        if (timer >= position[eventNumber] + duration[eventNumber]) {eventNumber++; event = ""; qwerty = ""; KeyInput.i = 0; w = 0;}
         if (eventNumber >= text.length) {free = false; typing = false; Button.searching = true;}
     }
 }
@@ -229,7 +239,7 @@ class KeyInput extends KeyAdapter {
     private Handler handler;
     public KeyInput(Handler handler) {this.handler = handler;}
     public static HashSet<Integer> keysPressed = new HashSet<>();
-    int i = 0;
+    static int i = 0;
     public static void clickSFX() {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("click.wav"));
@@ -255,9 +265,9 @@ class KeyInput extends KeyAdapter {
         if (Button.searching == false && Monkey.typing == false) {
             int key = e.getKeyCode();
             if ((char)key == 'J') {
-                Game.red = (int) (Math.random()*256);
-                Game.green = (int) (Math.random()*256);
-                Game.blue = (int) (Math.random()*256);
+                Game.red = (int) (Math.random()*128);
+                Game.green = (int) (Math.random()*128);
+                Game.blue = (int) (Math.random()*128);
                 Game.randomColor = new Color(Game.red, Game.green, Game.blue);
                 clickSFX();
             }
@@ -308,12 +318,13 @@ abstract class GameObject {
 enum ID {
     PlayButton(),
     ConfigButton(),
-    TypeMonkey(),
-    HitMonkey(),
-    TitleMonkey(),
     LeaveButton(),
     StartButton(),
     Level1Button(),
+    TypeMonkey(),
+    HitMonkey(),
+    TitleMonkey(),
+    BarMonkey(),
     Background();
 }
 // ------------------------------------------------------------------------------
