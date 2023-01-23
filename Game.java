@@ -32,9 +32,12 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.TitleMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(200/yScale),ID.TypeMonkey));
         handler.addObject(new Monkey((int)(100/xScale),(int)(100/yScale),ID.HitMonkey));
+        handler.addObject(new Monkey((int)(650/xScale),(int)(50/yScale),ID.ScoreMonkey));
+        handler.addObject(new Monkey((int)(300/xScale),(int)(250/yScale),ID.ResultMonkey));
         handler.addObject(new Button((int)(50/xScale),(int)(500/yScale),ID.LeaveButton));
         handler.addObject(new Button((int)(550/xScale),(int)(500/yScale),ID.StartButton));
         handler.addObject(new Button((int)(350/xScale),(int)(50/yScale),ID.Level1Button));
+        handler.addObject(new Button((int)(350/xScale),(int)(150/yScale),ID.Level2Button));
     }
     public synchronized void start() {
         thread = new Thread(this);
@@ -104,6 +107,7 @@ public class Game extends Canvas implements Runnable {
 class Button extends GameObject {
     static boolean searching = false;
     static boolean L1 = false;
+    static boolean L2 = false;
     static int w = Game.WIDTH/2;
     static int h = Game.HEIGHT/8;
     public Button (int x, int y, ID id) {super(x, y, id);}
@@ -123,26 +127,33 @@ class Button extends GameObject {
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
             g.drawString("J* - Config", x+w/8, y+h-h/4);
         }
-        if (id == ID.LeaveButton && Button.searching == true) {
+        if (id == ID.LeaveButton && Button.searching) {
             g.setColor(Color.white);
             g.fillRect(x, y, w/2, h/2);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h/2-h/8));
             g.drawString("L* - Leave", x+w/16, y+h/2-h/8);
         }
-        if (id == ID.StartButton && Button.searching == true && L1 == true) {
+        if (id == ID.StartButton && Button.searching && (L1 || L2) && Monkey.resultScreen == false) {
             g.setColor(Color.white);
             g.fillRect(x, y, w/2, h/2);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h/2-h/8));
             g.drawString("S* - Start", x+w/16, y+h/2-h/8);
         }
-        if (id == ID.Level1Button && Button.searching == true) {
+        if (id == ID.Level1Button && Button.searching && Monkey.resultScreen == false) {
             if (L1 == false) {g.setColor(Color.white);} else {g.setColor(Color.yellow);}
             g.fillRect(x, y, w, h);
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
-            g.drawString("Q* - Level 1", x+w/8, y+h-h/4);
+            g.drawString("Q* - Padoru", x+w/8, y+h-h/4);
+        }
+        if (id == ID.Level2Button && Button.searching && Monkey.resultScreen == false) {
+            if (L2 == false) {g.setColor(Color.white);} else {g.setColor(Color.yellow);}
+            g.fillRect(x, y, w, h);
+            g.setColor(Color.black);
+            g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
+            g.drawString("W* - Test", x+w/8, y+h-h/4);
         }
     }
 }
@@ -158,9 +169,14 @@ class Monkey extends GameObject {
     static int level = 0;
     static boolean typing = false;
     static int timer = 0;
-    static int[] position = {102, 354, 613, 859, 3300};
-    static String[] text = {"HASHIRESORIYO", "KAZENOYOUNI", "TSUKIMIHARAWO","PADORUPADORU",""};
-    static int[] duration = {354-102, 613-354, 859-613, 1144-859, 100};
+    static int[] position = {0, 102, 354, 613, 859, 1144};
+    static String[] text = {"","HASHIRESORIYO", "KAZENOYOUNI", "TSUKIMIHARAWO","PADORUPADORU",""};
+    static int[] duration = {102, 354-102, 613-354, 859-613, 1144-859, 100};
+    static int[] position2 = {0};
+    static String[] text2 = {""};
+    static int[] duration2 = {100};
+    static int score = 0;
+    static boolean resultScreen = false;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
     public void tick(int ticks) {
         if (id == ID.TypeMonkey) {
@@ -169,12 +185,12 @@ class Monkey extends GameObject {
         }
     }
     public void render(Graphics g) {
-        if (id == ID.TypeMonkey && typing == true) {
+        if (id == ID.TypeMonkey && typing) {
             g.setColor(Color.lightGray);
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(36/Game.yScale)));
             g.drawString(qwerty, x, y);
         }
-        if (id == ID.HitMonkey && typing == true) {
+        if (id == ID.HitMonkey && typing) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(36/Game.yScale)));
             g.drawString(event, x, y);
@@ -185,13 +201,23 @@ class Monkey extends GameObject {
             if (timer % 200 > 100) {g.drawString("RhythmTyper|", x, y);}
             else {g.drawString("RhythmTyper", x, y);}
         }
-        if (id == ID.BarMonkey && typing == true) {
+        if (id == ID.BarMonkey && typing) {
             g.setColor(Color.white);
             g.fillRect(x, y, w, h);
         }
+        if (id == ID.ScoreMonkey && typing) {
+            g.setColor(Color.white);
+            g.setFont(new Font("Ariel", Font.PLAIN, (int)(20/Game.yScale)));
+            g.drawString("Score: "+score, x, y);
+        }
+        if (id == ID.ResultMonkey && resultScreen) {
+            g.setColor(Color.white);
+            g.setFont(new Font("Ariel", Font.PLAIN, (int)(50/Game.yScale)));
+            g.drawString("Score: "+score, x, y);
+        }
     }
     public static void parseChart() {
-        if (level == 1 && init == true) {
+        if (level == 1 && init) {
             try {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
                 Clip sound = AudioSystem.getClip();
@@ -204,11 +230,69 @@ class Monkey extends GameObject {
                 qwerty = "";
                 KeyInput.i = 0;
                 eventNumber = 0;
+                score = 0;
             } catch (Exception err) {}
         }
-        if (timer >= position[eventNumber]) {event = text[eventNumber]; w += Game.WIDTH*1.2/duration[eventNumber];}
-        if (timer >= position[eventNumber] + duration[eventNumber]) {eventNumber++; event = ""; qwerty = ""; KeyInput.i = 0; w = 0;}
-        if (eventNumber >= text.length) {free = false; typing = false; Button.searching = true;}
+        else if (level == 2 && init) {
+            init = false;
+            timer = 0;
+            qwerty = "";
+            KeyInput.i = 0;
+            eventNumber = 0;
+            score = 0;
+        }
+        if (level == 1) {
+                if (timer >= position[eventNumber]) {
+                event = text[eventNumber];
+                w += Game.WIDTH*1.3/duration[eventNumber];
+            }
+            if (timer >= position[eventNumber] + duration[eventNumber]) {
+                for (int idx = 0; idx < text[eventNumber].length(); idx++) {
+                    if (qwerty.length() > idx) {
+                        if (qwerty.charAt(idx) == text[eventNumber].charAt(idx)) {
+                            score++;
+                        }
+                    }
+                }
+                eventNumber++;
+                event = "";
+                qwerty = "";
+                KeyInput.i = 0;
+                w = 0;
+            }
+            if (eventNumber >= text.length) {
+                free = false;
+                typing = false;
+                Button.searching = true;
+                resultScreen = true;
+            }
+        }
+        else if (level == 2) {
+            if (timer >= position2[eventNumber]) {
+                event = text2[eventNumber];
+                w += Game.WIDTH*1.3/duration2[eventNumber];
+            }
+            if (timer >= position2[eventNumber] + duration2[eventNumber]) {
+                for (int idx = 0; idx < text2[eventNumber].length(); idx++) {
+                    if (qwerty.length() > idx) {
+                        if (qwerty.charAt(idx) == text2[eventNumber].charAt(idx)) {
+                            score++;
+                        }
+                    }
+                }
+                eventNumber++;
+                event = "";
+                qwerty = "";
+                KeyInput.i = 0;
+                w = 0;
+            }
+            if (eventNumber >= text2.length) {
+                free = false;
+                typing = false;
+                Button.searching = true;
+                resultScreen = true;
+            }
+        }
     }
 }
 // ------------------------------------------------------------------------------
@@ -227,7 +311,7 @@ class Background extends GameObject {
         if (y < 0 || y > Game.HEIGHT-h) {dy *= -1;}
     }
     public void render(Graphics g) {
-        if (id == ID.Background && Monkey.typing == false) {
+        if (id == ID.Background) {
             Color color = new Color(Game.red/2, Game.green/2, Game.blue/2);
             g.setColor(color);
             g.fillRect(x, y, w, h);
@@ -250,7 +334,7 @@ class KeyInput extends KeyAdapter {
     }
     @Override
     public void keyPressed(KeyEvent e) {
-        if (Monkey.typing == true) {
+        if (Monkey.typing) {
             int key = e.getKeyCode(); keysPressed.add(key);
             if (key >= 32) {Monkey.qwerty += (char) key; i++;}
             else if (key == 8 && i > 0) {
@@ -272,24 +356,28 @@ class KeyInput extends KeyAdapter {
                 clickSFX();
             }
         }
-        if (Button.searching == true && Monkey.typing == false && Button.L1 == false) {
+        if (Button.searching && Monkey.typing == false && !(Button.L1 || Button.L2) && !Monkey.resultScreen) {
             int key = e.getKeyCode();
             if ((char)key == 'L') {Button.searching = false; clickSFX();}
         }
-        if (Button.searching == true && Monkey.typing == false && Button.L1 == true) {
+        if (Button.searching && Monkey.typing == false && (Button.L1 || Button.L2)) {
             int key = e.getKeyCode();
-            if ((char)key == 'L') {Button.L1 = false; clickSFX();}
+            if ((char)key == 'L') {Monkey.resultScreen = false; Button.searching = true; Button.L1 = false; Button.L2 = false; clickSFX();}
         }
-        if (Button.searching == true && Monkey.typing == false && Button.L1 == true) {
+        if (Button.searching && Monkey.typing == false && (Button.L1 || Button.L2) && !Monkey.resultScreen) {
             int key = e.getKeyCode();
             if ((char)key == 'S') {
                 Monkey.typing = true; Button.searching = false; clickSFX();
                 Monkey.free = true; Monkey.init = true;
             }
         }
-        if (Button.searching == true && Monkey.typing == false) {
+        if (Button.searching && Monkey.typing == false) {
             int key = e.getKeyCode();
             if ((char)key == 'Q') {Button.L1 = true; Monkey.level = 1; clickSFX();}
+        }
+        if (Button.searching && Monkey.typing == false) {
+            int key = e.getKeyCode();
+            if ((char)key == 'W') {Button.L2 = true; Monkey.level = 2; clickSFX();}
         }
     }
     @Override
@@ -321,10 +409,13 @@ enum ID {
     LeaveButton(),
     StartButton(),
     Level1Button(),
+    Level2Button(),
     TypeMonkey(),
     HitMonkey(),
     TitleMonkey(),
     BarMonkey(),
+    ScoreMonkey(),
+    ResultMonkey(),
     Background();
 }
 // ------------------------------------------------------------------------------
