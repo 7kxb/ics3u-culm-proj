@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// * Culminating Java project for ICS3U
+// * Culminating Java project for ICS3U, by Kevin X.
 // ! Packages
 import java.awt.*;
 import java.awt.event.*;
@@ -8,10 +8,10 @@ import javax.swing.*;
 import java.util.*;
 import javax.sound.sampled.*;
 import java.io.*;
-// ? Ctrl+K, (Ctrl+0 || Ctrl+J)
-// TODO: work
+// ? Use this combo to fold and unfold in VSC: Ctrl+K, (Ctrl+0 || Ctrl+J)
+// ? Download the better comments extension on VSC
 // ------------------------------------------------------------------------------
-public class Game extends Canvas implements Runnable {
+public class Game extends Canvas implements Runnable { // ! contains the main game loop, basically stitches everything together
     public static int WIDTH = 800, HEIGHT = 600;
     public static double xScale = 800.0/WIDTH, yScale = 600.0/HEIGHT;
     private Thread thread;
@@ -39,17 +39,8 @@ public class Game extends Canvas implements Runnable {
         handler.addObject(new Button((int)(350/xScale),(int)(50/yScale),ID.Level1Button));
         handler.addObject(new Button((int)(350/xScale),(int)(150/yScale),ID.Level2Button));
     }
-    public synchronized void start() {
-        thread = new Thread(this);
-        thread.start();
-        running = true;
-    }
-    public synchronized void stop() {
-        try {
-            thread.join();
-            running = false;
-        } catch (Exception e) {}
-    }
+    public synchronized void start() {thread = new Thread(this); thread.start(); running = true;}
+    public synchronized void stop() {try {thread.join(); running = false;} catch (Exception e) {}}
     public void run() {
         this.requestFocus();
         long lastTime = System.nanoTime();
@@ -84,10 +75,7 @@ public class Game extends Canvas implements Runnable {
     private void tick(int ticks) {handler.tick(ticks);}
     private void render() {
         BufferStrategy bs = this.getBufferStrategy();
-        if (bs == null) {
-            this.createBufferStrategy(3);
-            return;
-        }
+        if (bs == null) {this.createBufferStrategy(3); return;}
         Graphics g = bs.getDrawGraphics();
         g.setColor(Game.randomColor);
         g.fillRect(0,0,WIDTH,HEIGHT);
@@ -96,15 +84,12 @@ public class Game extends Canvas implements Runnable {
         bs.show();
     }
     public static void main(String[] args) {
-        if (args.length != 0) {
-            int w = Integer.parseInt(args[0]);
-            int h = Integer.parseInt(args[1]);
-        }
+        if (args.length != 0) {int w = Integer.parseInt(args[0]); int h = Integer.parseInt(args[1]);}
         new Game();
     }
 }
 // ------------------------------------------------------------------------------
-class Button extends GameObject {
+class Button extends GameObject { // ! class for button gameobjects
     static boolean searching = false;
     static boolean L1 = false;
     static boolean L2 = false;
@@ -158,7 +143,7 @@ class Button extends GameObject {
     }
 }
 // ------------------------------------------------------------------------------
-class Monkey extends GameObject {
+class Monkey extends GameObject { // ! class for text based gameobjects
     static int w = 0;
     static int h = Game.HEIGHT/20;
     static String qwerty = "";
@@ -178,12 +163,7 @@ class Monkey extends GameObject {
     static int score = 0;
     static boolean resultScreen = false;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
-    public void tick(int ticks) {
-        if (id == ID.TypeMonkey) {
-            timer++;
-            if (free) {parseChart();}
-        }
-    }
+    public void tick(int ticks) {if (id == ID.TypeMonkey) {timer++; if (free) {parseChart();}}}
     public void render(Graphics g) {
         if (id == ID.TypeMonkey && typing) {
             g.setColor(Color.lightGray);
@@ -195,7 +175,7 @@ class Monkey extends GameObject {
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(36/Game.yScale)));
             g.drawString(event, x, y);
         }
-        if (id == ID.TitleMonkey && Button.searching == false && Monkey.typing == false) {
+        if (id == ID.TitleMonkey && !Button.searching && !Monkey.typing) {
             g.setColor(Color.white);
             g.setFont(new Font("Ariel", Font.PLAIN, (int)(72/Game.yScale)));
             if (timer % 200 > 100) {g.drawString("RhythmTyper|", x, y);}
@@ -296,17 +276,14 @@ class Monkey extends GameObject {
     }
 }
 // ------------------------------------------------------------------------------
-class Background extends GameObject {
+class Background extends GameObject { // ! class for background gameobjects
     static int w = Game.WIDTH/4;
     static int h = Game.HEIGHT/4;
     public Background(int x, int y, ID id) {super(x, y, id);}
     static int dx = 1;
     static int dy = 1;
     public void tick(int ticks) {
-        if (id == ID.Background) {
-            x += dx;
-            y += dy;
-        }
+        if (id == ID.Background) {x += dx; y += dy;}
         if (x < 0 || x > Game.WIDTH-w) {dx *= -1;}
         if (y < 0 || y > Game.HEIGHT-h) {dy *= -1;}
     }
@@ -319,7 +296,7 @@ class Background extends GameObject {
     }
 }
 // ------------------------------------------------------------------------------
-class KeyInput extends KeyAdapter {
+class KeyInput extends KeyAdapter { // ! contains keyadapter, basically handles key inputs for typing
     private Handler handler;
     public KeyInput(Handler handler) {this.handler = handler;}
     public static HashSet<Integer> keysPressed = new HashSet<>();
@@ -342,12 +319,9 @@ class KeyInput extends KeyAdapter {
                 i--;
             }
         }
-        if (Button.searching == false && Monkey.typing == false) {
+        if (!Button.searching && !Monkey.typing) {
             int key = e.getKeyCode();
             if ((char)key == 'F') {Button.searching = true; clickSFX();}
-        }
-        if (Button.searching == false && Monkey.typing == false) {
-            int key = e.getKeyCode();
             if ((char)key == 'J') {
                 Game.red = (int) (Math.random()*128);
                 Game.green = (int) (Math.random()*128);
@@ -356,27 +330,24 @@ class KeyInput extends KeyAdapter {
                 clickSFX();
             }
         }
-        if (Button.searching && Monkey.typing == false && !(Button.L1 || Button.L2) && !Monkey.resultScreen) {
+        if (Button.searching && !Monkey.typing && !(Button.L1 || Button.L2) && !Monkey.resultScreen) {
             int key = e.getKeyCode();
             if ((char)key == 'L') {Button.searching = false; clickSFX();}
         }
-        if (Button.searching && Monkey.typing == false && (Button.L1 || Button.L2)) {
+        if (Button.searching && !Monkey.typing && (Button.L1 || Button.L2)) {
             int key = e.getKeyCode();
             if ((char)key == 'L') {Monkey.resultScreen = false; Button.searching = true; Button.L1 = false; Button.L2 = false; clickSFX();}
         }
-        if (Button.searching && Monkey.typing == false && (Button.L1 || Button.L2) && !Monkey.resultScreen) {
+        if (Button.searching && !Monkey.typing && (Button.L1 || Button.L2) && !Monkey.resultScreen) {
             int key = e.getKeyCode();
             if ((char)key == 'S') {
                 Monkey.typing = true; Button.searching = false; clickSFX();
                 Monkey.free = true; Monkey.init = true;
             }
         }
-        if (Button.searching && Monkey.typing == false) {
+        if (Button.searching && !Monkey.typing) {
             int key = e.getKeyCode();
             if ((char)key == 'Q') {Button.L1 = true; Monkey.level = 1; clickSFX();}
-        }
-        if (Button.searching && Monkey.typing == false) {
-            int key = e.getKeyCode();
             if ((char)key == 'W') {Button.L2 = true; Monkey.level = 2; clickSFX();}
         }
     }
@@ -384,7 +355,7 @@ class KeyInput extends KeyAdapter {
     public void keyReleased(KeyEvent e) {int key = e.getKeyCode(); keysPressed.remove(key);}
 }
 // ------------------------------------------------------------------------------
-abstract class GameObject {
+abstract class GameObject { // ! handler for all gameobjects, contains getters and setters
     protected int x, y;
     protected ID id;
     protected int velX, velY;
@@ -403,7 +374,7 @@ abstract class GameObject {
     public int getVelY() {return velY;}
 }
 // ------------------------------------------------------------------------------
-enum ID {
+enum ID { // ! enum, list of ids
     PlayButton(),
     ConfigButton(),
     LeaveButton(),
@@ -419,7 +390,7 @@ enum ID {
     Background();
 }
 // ------------------------------------------------------------------------------
-class Handler {
+class Handler { // ! handler for all events like gameobjects, graphics, etc
     LinkedList<GameObject> object = new LinkedList<GameObject>();
     public void tick(int ticks) {
         for (int i = 0; i < object.size(); i++) {
@@ -437,7 +408,7 @@ class Handler {
     public void removeObject(GameObject object) {this.object.remove(object);}
 }
 // ------------------------------------------------------------------------------
-class Window extends Canvas {
+class Window extends Canvas { // ! game window
     Window (int width, int height, String title, Game Game) {
         JFrame frame = new JFrame(title);
         frame.setPreferredSize(new Dimension(width, height));
