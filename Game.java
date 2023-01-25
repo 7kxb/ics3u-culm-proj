@@ -1,5 +1,9 @@
 // ------------------------------------------------------------------------------
 // * Culminating Java project for ICS3U, by Kevin X.
+// * Under 500 lines of code and comments.
+// TODO: Use this combo to fold and unfold in VSC: Ctrl+K, (Ctrl+0 || Ctrl+J)
+// TODO: Download the better comments extension on VSC
+// ? "It works on my machine, I use arch btw"
 // ! Packages
 import java.awt.*;
 import java.awt.event.*;
@@ -8,9 +12,6 @@ import javax.swing.*;
 import java.util.*;
 import javax.sound.sampled.*;
 import java.io.*;
-// TODO: Use this combo to fold and unfold in VSC: Ctrl+K, (Ctrl+0 || Ctrl+J)
-// TODO: Download the better comments extension on VSC
-// ? "It works on my machine, I use arch btw"
 // ------------------------------------------------------------------------------
 public class Game extends Canvas implements Runnable { // ! contains the main game loop, basically stitches everything together
     public static int WIDTH = 800, HEIGHT = 600; // * setting width and height variables
