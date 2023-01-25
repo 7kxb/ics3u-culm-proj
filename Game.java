@@ -41,6 +41,8 @@ public class Game extends Canvas implements Runnable { // ! contains the main ga
         handler.addObject(new Button((int)(550/xScale),(int)(500/yScale),ID.StartButton));
         handler.addObject(new Button((int)(350/xScale),(int)(50/yScale),ID.Level1Button));
         handler.addObject(new Button((int)(350/xScale),(int)(150/yScale),ID.Level2Button));
+        handler.addObject(new Button((int)(350/xScale),(int)(250/yScale),ID.Level3Button));
+        handler.addObject(new Button((int)(350/xScale),(int)(350/yScale),ID.Level4Button));
     }
     public synchronized void start() {thread = new Thread(this); thread.start(); running = true;} // * start method/function
     public synchronized void stop() {try {thread.join(); running = false;} catch (Exception e) {}} // * stop method/function
@@ -97,6 +99,8 @@ class Button extends GameObject { // ! class for button gameobjects
     static boolean searching = false;
     static boolean L1 = false;
     static boolean L2 = false;
+    static boolean L3 = false;
+    static boolean L4 = false;
     static int w = Game.WIDTH/2;
     static int h = Game.HEIGHT/8;
     public Button (int x, int y, ID id) {super(x, y, id);}
@@ -123,7 +127,7 @@ class Button extends GameObject { // ! class for button gameobjects
             g.setFont(new Font("Ariel", Font.PLAIN, h/2-h/8));
             g.drawString("L* - Leave", x+w/16, y+h/2-h/8);
         }
-        if (id == ID.StartButton && Button.searching && (L1 || L2) && Monkey.resultScreen == false) {
+        if (id == ID.StartButton && Button.searching && (L1 || L2 || L3 || L4) && Monkey.resultScreen == false) {
             g.setColor(Color.white);
             g.fillRect(x, y, w/2, h/2);
             g.setColor(Color.black);
@@ -143,6 +147,20 @@ class Button extends GameObject { // ! class for button gameobjects
             g.setColor(Color.black);
             g.setFont(new Font("Ariel", Font.PLAIN, h-h/4));
             g.drawString("W* - Test", x+w/8, y+h-h/4);
+        }
+        if (id == ID.Level3Button && Button.searching && Monkey.resultScreen == false) {
+            if (L3 == false) {g.setColor(Color.white);} else {g.setColor(Color.yellow);}
+            g.fillRect(x, y, w, h);
+            g.setColor(Color.black);
+            g.setFont(new Font("Ariel", Font.PLAIN, h/3));
+            g.drawString("E* - Objects@30WPM", x+w/8, y+h-h/4);
+        }
+        if (id == ID.Level4Button && Button.searching && Monkey.resultScreen == false) {
+            if (L4 == false) {g.setColor(Color.white);} else {g.setColor(Color.yellow);}
+            g.fillRect(x, y, w, h);
+            g.setColor(Color.black);
+            g.setFont(new Font("Ariel", Font.PLAIN, h/3));
+            g.drawString("R* - Words@60WPM", x+w/8, y+h-h/4);
         }
     }
 }
@@ -164,6 +182,12 @@ class Monkey extends GameObject { // ! class for text based gameobjects
     static int[] position2 = {0};
     static String[] text2 = {""};
     static int[] duration2 = {100};
+    static int[] position3 = {0,200,400,600,800,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200,3400,3600,3800,4000,4200,4400,4600,4800,5000,5200,5400,5600,5800,6000,6200,6400,6600,6800,7000,7200,7400,7600,7800,8000,8200,8400,8600,8800,9000,9200,9400,9600,9800,10000,10200,10400,10600,10800,11000,11200,11400,11600,11800,12000,12200,12400,12600,12800,13000,13200,13400,13600,13800,14000,14200,14400,14600,14800,15000,15200,15400,15600,15800,16000,16200};
+    static String[] text3 = {"","PERSON","BICYCLE","CAR","MOTORCYCLE","AIRPLANE","BUS","TRAIN","TRUCK","BOAT","TRAFFIC LIGHT","FIRE HYDRANT","STOP SIGN","PARKING METER","BENCH","BIRD","CAT","DOG","HORSE","SHEEP","COW","ELEPHANT","BEAR","ZEBRA","GIRAFFE","BACKPACK","UMBRELLA","HANDBAG","TIE","SUITCASE","FRISBEE","SKIS","SNOWBOARD","SPORTS BALL","KITE","BASEBALL BAT","BASEBALL GLOVE","SKATEBOARD","SURFBOARD","TENNIS RACKET","BOTTLE","WINE GLASS","CUP","FORK","KNIFE","SPOON","BOWL","BANANA","APPLE","SANDWICH","ORANGE","BROCCOLI","CARROT","HOT DOG","PIZZA","DONUT","CAKE","CHAIR","COUCH","POTTED PLANT","BED","DINING TABLE","TOILET","TV","LAPTOP","MOUSE","REMOTE","KEYBOARD","CELL PHONE","MICROWAVE","OVEN","TOASTER","SINK","REFRIGERATOR","BOOK","CLOCK","VASE","SCISSORS","TEDDY BEAR","HAIR DRIER","TOOTHBRUSH",""};
+    static int[] duration3 = {200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200};
+    static int[] position4 = {0,100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,8200,8300,8400,8500,8600,8700,8800,8900,9000,9100,9200,9300,9400,9500,9600,9700,9800,9900,10000,10100};
+    static String[] text4 = {"","THE","AT","THERE","SOME","MY","OF","BE","USE","HER","THAN","AND","THIS","AN","WOULD","FIRST","A","HAVE","EACH","MAKE","WATER","TO","FROM","WHICH","LIKE","BEEN","IN","OR","SHE","HIM","CALL","IS","ONE","DO","INTO","WHO","YOU","HAD","HOW","TIME","OIL","THAT","BY","THEIR","HAS","ITS","IT","WORD","IF","LOOK","NOW","HE","BUT","WILL","TWO","FIND","WAS","NOT","UP","MORE","LONG","FOR","WHAT","OTHER","WRITE","DOWN","ON","ALL","ABOUT","GO","DAY","ARE","WERE","OUT","SEE","DID","AS","WE","MANY","NUMBER","GET","WITH","WHEN","THEN","NO","COME","HIS","YOUR","THEM","WAY","MADE","THEY","CAN","THESE","COULD","MAY","I","SAID","SO","PEOPLE","PART",""};
+    static int[] duration4 = {100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100};
     static int score = 0;
     static boolean resultScreen = false;
     public Monkey (int x, int y, ID id) {super(x, y, id);}
@@ -217,7 +241,7 @@ class Monkey extends GameObject { // ! class for text based gameobjects
                 score = 0;
             } catch (Exception err) {}
         }
-        else if (level == 2 && init) {
+        else if (level >= 2 && init) {
             init = false;
             timer = 0;
             qwerty = "";
@@ -271,6 +295,58 @@ class Monkey extends GameObject { // ! class for text based gameobjects
                 w = 0;
             }
             if (eventNumber >= text2.length) {
+                free = false;
+                typing = false;
+                Button.searching = true;
+                resultScreen = true;
+            }
+        }
+        else if (level == 3) {
+            if (timer >= position3[eventNumber]) {
+                event = text3[eventNumber];
+                w += Game.WIDTH*1.3/duration3[eventNumber];
+            }
+            if (timer >= position3[eventNumber] + duration3[eventNumber]) {
+                for (int idx = 0; idx < text3[eventNumber].length(); idx++) {
+                    if (qwerty.length() > idx) {
+                        if (qwerty.charAt(idx) == text3[eventNumber].charAt(idx)) {
+                            score++;
+                        }
+                    }
+                }
+                eventNumber++;
+                event = "";
+                qwerty = "";
+                KeyInput.i = 0;
+                w = 0;
+            }
+            if (eventNumber >= text3.length) {
+                free = false;
+                typing = false;
+                Button.searching = true;
+                resultScreen = true;
+            }
+        }
+        else if (level == 4) {
+            if (timer >= position4[eventNumber]) {
+                event = text4[eventNumber];
+                w += Game.WIDTH*1.3/duration4[eventNumber];
+            }
+            if (timer >= position4[eventNumber] + duration4[eventNumber]) {
+                for (int idx = 0; idx < text4[eventNumber].length(); idx++) {
+                    if (qwerty.length() > idx) {
+                        if (qwerty.charAt(idx) == text4[eventNumber].charAt(idx)) {
+                            score++;
+                        }
+                    }
+                }
+                eventNumber++;
+                event = "";
+                qwerty = "";
+                KeyInput.i = 0;
+                w = 0;
+            }
+            if (eventNumber >= text4.length) {
                 free = false;
                 typing = false;
                 Button.searching = true;
@@ -334,15 +410,15 @@ class KeyInput extends KeyAdapter { // ! contains keyadapter, basically handles 
                 clickSFX();
             }
         }
-        if (Button.searching && !Monkey.typing && !(Button.L1 || Button.L2) && !Monkey.resultScreen) {
+        if (Button.searching && !Monkey.typing && !(Button.L1 || Button.L2 || Button.L3 || Button.L4) && !Monkey.resultScreen) {
             int key = e.getKeyCode();
             if ((char)key == 'L') {Button.searching = false; clickSFX();}
         }
-        if (Button.searching && !Monkey.typing && (Button.L1 || Button.L2)) {
+        if (Button.searching && !Monkey.typing && (Button.L1 || Button.L2 || Button.L3 || Button.L4)) {
             int key = e.getKeyCode();
-            if ((char)key == 'L') {Monkey.resultScreen = false; Button.searching = true; Button.L1 = false; Button.L2 = false; clickSFX();}
+            if ((char)key == 'L') {Monkey.resultScreen = false; Button.searching = true; Button.L1 = false; Button.L2 = false; Button.L3 = false; Button.L4 = false; clickSFX();}
         }
-        if (Button.searching && !Monkey.typing && (Button.L1 || Button.L2) && !Monkey.resultScreen) {
+        if (Button.searching && !Monkey.typing && (Button.L1 || Button.L2 || Button.L3 || Button.L4) && !Monkey.resultScreen) {
             int key = e.getKeyCode();
             if ((char)key == 'S') {
                 Monkey.typing = true; Button.searching = false; clickSFX();
@@ -353,6 +429,8 @@ class KeyInput extends KeyAdapter { // ! contains keyadapter, basically handles 
             int key = e.getKeyCode();
             if ((char)key == 'Q') {Button.L1 = true; Monkey.level = 1; clickSFX();}
             if ((char)key == 'W') {Button.L2 = true; Monkey.level = 2; clickSFX();}
+            if ((char)key == 'E') {Button.L3 = true; Monkey.level = 3; clickSFX();}
+            if ((char)key == 'R') {Button.L4 = true; Monkey.level = 4; clickSFX();}
         }
     }
     @Override // * override avoids collision and makes this run faster (supposedly)
@@ -386,6 +464,8 @@ enum ID { // ! enum, list of ids, for our gameObjects
     StartButton(),
     Level1Button(),
     Level2Button(),
+    Level3Button(),
+    Level4Button(),
     TypeMonkey(),
     HitMonkey(),
     TitleMonkey(),
