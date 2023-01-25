@@ -8,23 +8,25 @@ import javax.swing.*;
 import java.util.*;
 import javax.sound.sampled.*;
 import java.io.*;
-// ? Use this combo to fold and unfold in VSC: Ctrl+K, (Ctrl+0 || Ctrl+J)
-// ? Download the better comments extension on VSC
+// TODO: Use this combo to fold and unfold in VSC: Ctrl+K, (Ctrl+0 || Ctrl+J)
+// TODO: Download the better comments extension on VSC
+// ? "It works on my machine, I use arch btw"
 // ------------------------------------------------------------------------------
 public class Game extends Canvas implements Runnable { // ! contains the main game loop, basically stitches everything together
-    public static int WIDTH = 800, HEIGHT = 600;
-    public static double xScale = 800.0/WIDTH, yScale = 600.0/HEIGHT;
-    private Thread thread;
-    private boolean running = false;
-    private Handler handler;
-    public static int red = (int) (Math.random()*128);
-    public static int green = (int) (Math.random()*128);
-    public static int blue = (int) (Math.random()*128);
-    public static Color randomColor = new Color(red, green, blue);
-    public Game() {
-        handler = new Handler();
-        this.addKeyListener(new KeyInput(handler));
-        new Window(WIDTH, HEIGHT, "Game", this);
+    public static int WIDTH = 800, HEIGHT = 600; // * setting width and height variables
+    public static double xScale = 800.0/WIDTH, yScale = 600.0/HEIGHT; // * scaling for resized windows
+    private Thread thread; // * initialize thread
+    private boolean running = false; // * a variable indicating whether or not the game is running, used for checks
+    private Handler handler; // * initialize handler
+    public static int red = (int) (Math.random()*128); // ? randomize background colour, red channel
+    public static int green = (int) (Math.random()*128); // ? randomize background colour, green channel
+    public static int blue = (int) (Math.random()*128); // ? randomize background colour, blue channel
+    public static Color randomColor = new Color(red, green, blue); // * randomize background colour
+    public Game() { // * instance of the game
+        handler = new Handler(); // * utilizes the handler we initialized and makes an instances
+        this.addKeyListener(new KeyInput(handler)); // * adds a keylistener to our handler
+        new Window(WIDTH, HEIGHT, "Game", this); // * creates our window with specified details
+        // ! adding gameObjects to the handler
         handler.addObject(new Background((int)(100/xScale),(int)(100/yScale),ID.Background));
         handler.addObject(new Button((int)(200/xScale),(int)(300/yScale),ID.PlayButton));
         handler.addObject(new Button((int)(200/xScale),(int)(400/yScale),ID.ConfigButton));
@@ -39,51 +41,52 @@ public class Game extends Canvas implements Runnable { // ! contains the main ga
         handler.addObject(new Button((int)(350/xScale),(int)(50/yScale),ID.Level1Button));
         handler.addObject(new Button((int)(350/xScale),(int)(150/yScale),ID.Level2Button));
     }
-    public synchronized void start() {thread = new Thread(this); thread.start(); running = true;}
-    public synchronized void stop() {try {thread.join(); running = false;} catch (Exception e) {}}
-    public void run() {
-        this.requestFocus();
-        long lastTime = System.nanoTime();
-        double amountOfTicks = 100.0;
-        double ns = 1_000_000_000.0 / amountOfTicks;
-        double delta = 0;
-        long timer = System.currentTimeMillis();
-        int frames = 0;
-        int ticks = 0;
-        while (running) {
-            long now = System.nanoTime();
-            delta += (now - lastTime)/ns;
-            lastTime = now;
+    public synchronized void start() {thread = new Thread(this); thread.start(); running = true;} // * start method/function
+    public synchronized void stop() {try {thread.join(); running = false;} catch (Exception e) {}} // * stop method/function
+    public void run() { // * run method/function
+        this.requestFocus(); // * requests the window to be automatically focused on startup
+        long lastTime = System.nanoTime(); // * sets the last frame/tick to the system's internal clock
+        double amountOfTicks = 100.0; // * 100 ticks or 100 fps
+        double ns = 1_000_000_000.0 / amountOfTicks; // * defines how many nanoseconds are in a tick/frame
+        double delta = 0; // * the amount of time since the last frame/tick and the next tick/frame
+        long timer = System.currentTimeMillis(); // * a timer using the system's internal clock
+        int frames = 0; // * a timer using the system's internal clock
+        int ticks = 0; // * total amount of ticks that have been passed since
+        while (running) { // * you can think of this as our main game loop (pygame devs)
+            long now = System.nanoTime(); // * sets now variable to... well, now
+            delta += (now - lastTime)/ns; // * adds the amount of nanoseconds between now and lasttime to delta
+            lastTime = now; // * sets lasttime to now
             while (delta >= 1) {
-                tick(ticks);
-                delta--;
-                ticks++;
+                tick(ticks); // * pass a tick to the handler
+                delta--; // * subtract 1 from delta
+                ticks++; // * add 1 to the total amount of ticks that have been passed since
                 if (running) {
-                    Toolkit.getDefaultToolkit().sync();
-                    render();
-                    frames++;
+                    Toolkit.getDefaultToolkit().sync(); // ? syncs the fps/tick on certain desktop enviroments on linux systems, irrelevant to windows/mac (idk why X11 and Wayland breaks someone who's also a nerd plz help)
+                    render(); // * renders everything that the handler returns after we had just passed a tick to it
+                    frames++; // * add 1 to the total amount of frames that have been passed since
                 }
             }
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
+                // TODO: System.out.println("FPS: "+frames+" | TPS: "+ticks);
                 frames = 0;
                 ticks = 0;
             }
         }
-        stop();
+        stop(); // * if running is not true, then call stop
     }
-    private void tick(int ticks) {handler.tick(ticks);}
+    private void tick(int ticks) {handler.tick(ticks);} // * see main game loop (running), for info on how it's processed
     private void render() {
-        BufferStrategy bs = this.getBufferStrategy();
-        if (bs == null) {this.createBufferStrategy(3); return;}
-        Graphics g = bs.getDrawGraphics();
-        g.setColor(Game.randomColor);
-        g.fillRect(0,0,WIDTH,HEIGHT);
-        handler.render(g);
-        g.dispose();
-        bs.show();
+        BufferStrategy bs = this.getBufferStrategy(); // * gets our bufferstrategy
+        if (bs == null) {this.createBufferStrategy(3); return;} // * since we currently don't have one, lets create one
+        Graphics g = bs.getDrawGraphics(); // * our graphics (instance? idk what you'd describe this)
+        g.setColor(Game.randomColor); // * set the colour of the (pen? if you used python turtle, you'd know) to our random colour
+        g.fillRect(0,0,WIDTH,HEIGHT); // * fill the entire screen/window/display with a random coloured rectangle
+        handler.render(g); // * renders our graphics using our handler
+        g.dispose(); // * disposes of our graphics (instance? again idk)
+        bs.show(); // * uses our bufferstrategy to show the new changes
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) { // * our main just calls a new game instance
         if (args.length != 0) {int w = Integer.parseInt(args[0]); int h = Integer.parseInt(args[1]);}
         new Game();
     }
@@ -297,9 +300,9 @@ class Background extends GameObject { // ! class for background gameobjects
 }
 // ------------------------------------------------------------------------------
 class KeyInput extends KeyAdapter { // ! contains keyadapter, basically handles key inputs for typing
-    private Handler handler;
-    public KeyInput(Handler handler) {this.handler = handler;}
-    public static HashSet<Integer> keysPressed = new HashSet<>();
+    private Handler handler; // * this is a seperate handler from the other one, just for this class only
+    public KeyInput(Handler handler) {this.handler = handler;} // * keyinput instance
+    public static HashSet<Integer> keysPressed = new HashSet<>(); // * a hashset containing which keys are currently pressed
     static int i = 0;
     public static void clickSFX() {
         try {
@@ -309,8 +312,8 @@ class KeyInput extends KeyAdapter { // ! contains keyadapter, basically handles 
             sound.start();
         } catch (Exception err) {}
     }
-    @Override
-    public void keyPressed(KeyEvent e) {
+    @Override // * override avoids collision and makes this run faster (supposedly)
+    public void keyPressed(KeyEvent e) { // * if a key is being pressed, add it to the hashset
         if (Monkey.typing) {
             int key = e.getKeyCode(); keysPressed.add(key);
             if (key >= 32) {Monkey.qwerty += (char) key; i++;}
@@ -351,17 +354,18 @@ class KeyInput extends KeyAdapter { // ! contains keyadapter, basically handles 
             if ((char)key == 'W') {Button.L2 = true; Monkey.level = 2; clickSFX();}
         }
     }
-    @Override
-    public void keyReleased(KeyEvent e) {int key = e.getKeyCode(); keysPressed.remove(key);}
+    @Override // * override avoids collision and makes this run faster (supposedly)
+    public void keyReleased(KeyEvent e) {int key = e.getKeyCode(); keysPressed.remove(key);} // * if a key gets released, remove it from the hashset
 }
 // ------------------------------------------------------------------------------
 abstract class GameObject { // ! handler for all gameobjects, contains getters and setters
-    protected int x, y;
-    protected ID id;
-    protected int velX, velY;
-    public GameObject(int x, int y, ID id) {this.x = x; this.y = y; this.id = id;}
-    public abstract void tick(int ticks);
-    public abstract void render(Graphics g);
+    protected int x, y; // * each instance has its coords
+    protected ID id; // * and an id
+    protected int velX, velY; // * and its velocity (fsr i didnt use this, but its better)
+    public GameObject(int x, int y, ID id) {this.x = x; this.y = y; this.id = id;} // * gameobject instance
+    public abstract void tick(int ticks); // * when we recieve a tick from the handler or main game loop
+    public abstract void render(Graphics g); // * used by our player and ball classes when we extend/include this one
+    // ! these are just getters and setters
     public void setX(int x) {this.x = x;}
     public void setY(int y) {this.y = y;}
     public int getX() {return x;}
@@ -374,7 +378,7 @@ abstract class GameObject { // ! handler for all gameobjects, contains getters a
     public int getVelY() {return velY;}
 }
 // ------------------------------------------------------------------------------
-enum ID { // ! enum, list of ids
+enum ID { // ! enum, list of ids, for our gameObjects
     PlayButton(),
     ConfigButton(),
     LeaveButton(),
@@ -398,13 +402,13 @@ class Handler { // ! handler for all events like gameobjects, graphics, etc
             tempObject.tick(ticks);
         }
     }
-    public void render(Graphics g) {
+    public void render(Graphics g) { // * for each object, render it using graphics
         for (int i = 0; i < object.size(); i++) {
             GameObject tempObject = object.get(i);
             tempObject.render(g);
         }
     }
-    public void addObject(GameObject object) {this.object.add(object);}
+    public void addObject(GameObject object) {this.object.add(object);} // * used in the game class
     public void removeObject(GameObject object) {this.object.remove(object);}
 }
 // ------------------------------------------------------------------------------
