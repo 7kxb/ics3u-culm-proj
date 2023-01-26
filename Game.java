@@ -224,11 +224,12 @@ class Monkey extends GameObject { // ! class for text based gameobjects
             g.drawString("Score: "+score, x, y);
         }
     }
+    private static Clip sound;
     public static void parseChart() {
         if (level == 1 && init) {
             try {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("padoru.wav"));
-                Clip sound = AudioSystem.getClip();
+                sound = AudioSystem.getClip();
                 sound.open(audioInputStream);
                 FloatControl gainControl = (FloatControl) sound.getControl(FloatControl.Type.MASTER_GAIN);
                 gainControl.setValue(-16.0f);
@@ -242,12 +243,20 @@ class Monkey extends GameObject { // ! class for text based gameobjects
             } catch (Exception err) {}
         }
         else if (level >= 2 && init) {
-            init = false;
-            timer = 0;
-            qwerty = "";
-            KeyInput.i = 0;
-            eventNumber = 0;
-            score = 0;
+            try {
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Game.class.getResource("4zIpl8CvBlM.wav"));
+                sound = AudioSystem.getClip();
+                sound.open(audioInputStream);
+                FloatControl gainControl = (FloatControl) sound.getControl(FloatControl.Type.MASTER_GAIN);
+                gainControl.setValue(-8.0f);
+                sound.start();
+                init = false;
+                timer = 0;
+                qwerty = "";
+                KeyInput.i = 0;
+                eventNumber = 0;
+                score = 0;
+            } catch (Exception err) {}
         }
         if (level == 1) {
                 if (timer >= position[eventNumber]) {
@@ -273,6 +282,7 @@ class Monkey extends GameObject { // ! class for text based gameobjects
                 typing = false;
                 Button.searching = true;
                 resultScreen = true;
+                sound.stop();
             }
         }
         else if (level == 2) {
@@ -299,6 +309,7 @@ class Monkey extends GameObject { // ! class for text based gameobjects
                 typing = false;
                 Button.searching = true;
                 resultScreen = true;
+                sound.stop();
             }
         }
         else if (level == 3) {
@@ -325,6 +336,7 @@ class Monkey extends GameObject { // ! class for text based gameobjects
                 typing = false;
                 Button.searching = true;
                 resultScreen = true;
+                sound.stop();
             }
         }
         else if (level == 4) {
@@ -351,6 +363,7 @@ class Monkey extends GameObject { // ! class for text based gameobjects
                 typing = false;
                 Button.searching = true;
                 resultScreen = true;
+                sound.stop();
             }
         }
     }
